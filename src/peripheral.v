@@ -71,8 +71,8 @@ module tqvp_video_controller (
             pix_y <= 0;
         end
         else begin
-            pix_x = {6'b0,hpos} ;
-            pix_y = {6'b0, vpos} ;
+            pix_x <= {6'b0,hpos} ;
+            pix_y <= {6'b0, vpos} ;
         end
     
     end
