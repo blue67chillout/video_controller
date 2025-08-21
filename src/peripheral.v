@@ -49,7 +49,7 @@ module tqvp_video_controller (
     //assign uo_out = example_data[7:0] + ui_in;
 
     wire hsync, vsync ,display_on;
-    wire [9:0] hpos, ypos ;
+    wire [9:0] hpos, vpos ;
     
     
     video_controller inst (
@@ -59,7 +59,7 @@ module tqvp_video_controller (
         .vsync (vsync),
         .display_on(display_on),
         .hpos (hpos),
-        .ypos (ypos)
+        .vpos (vpos)
     );
 
     reg [15:0] pix_x ;
@@ -72,7 +72,7 @@ module tqvp_video_controller (
         end
         else begin
             pix_x = {6'b0,hpos} ;
-            pix_y = {6'b0, ypos} ;
+            pix_y = {6'b0, vpos} ;
         end
     
     end
