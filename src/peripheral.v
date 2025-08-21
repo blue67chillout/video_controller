@@ -66,7 +66,7 @@ module tqvp_video_controller (
     reg [15:0] pix_y ;
 
     always @ (posedge clk ) begin
-        if (~rst) begin
+        if (!rst_n) begin
             pix_x <= 0;
             pix_y <= 0;
         end
