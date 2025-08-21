@@ -54,7 +54,7 @@ module tqvp_video_controller (
     
     video_controller inst (
         .clk (clk),
-        .rst (rst),
+        .rst (rst_n),
         .hsync (hsync),
         .vsync (vsync),
         .display_on(display_on),
