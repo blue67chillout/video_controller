@@ -8,7 +8,7 @@
 // Change the name of this module to something that reflects its functionality and includes your name for uniqueness
 // For example tqvp_yourname_spi for an SPI peripheral.
 // Then edit tt_wrapper.v line 41 and change tqvp_example to your chosen module name.
-module tqvp_example (
+module tqv_video_controller (
     input         clk,          // Clock - the TinyQV project clock is normally set to 64MHz.
     input         rst_n,        // Reset_n - low to reset.
 
@@ -32,28 +32,61 @@ module tqvp_example (
 );
 
     // Implement a 32-bit read/write register at address 0
-    reg [31:0] example_data;
+    reg [31:0] control_data;
     always @(posedge clk) begin
         if (!rst_n) begin
-            example_data <= 0;
+            control_data <= 0;
         end else begin
             if (address == 6'h0) begin
-                if (data_write_n != 2'b11)              example_data[7:0]   <= data_in[7:0];
-                if (data_write_n[1] != data_write_n[0]) example_data[15:8]  <= data_in[15:8];
-                if (data_write_n == 2'b10)              example_data[31:16] <= data_in[31:16];
+                if (data_write_n != 2'b11)              control_data[7:0]   <= data_in[7:0];
+                if (data_write_n[1] != data_write_n[0]) control_data[15:8]  <= data_in[15:8];
+                if (data_write_n == 2'b10)              control_data[31:16] <= data_in[31:16];
             end
         end
     end
 
     // The bottom 8 bits of the stored data are added to ui_in and output to uo_out.
-    assign uo_out = example_data[7:0] + ui_in;
+    //assign uo_out = example_data[7:0] + ui_in;
 
+    wire hsync, vsync ,display_on;
+    wire [9:0] hpos, ypos ;
+    
+    
+    video_controller inst (
+        .clk (clk),
+        .rst (rst),
+        .hsync (hsync),
+        .vsync (vsync),
+        .display_on(display_on),
+        .hpos (hpos),
+        .ypos (ypos)
+    );
+
+    reg [15:0] pix_x ;
+    reg [15:0] pix_y ;
+
+    always @ (posedge clk ) begin
+        if (~rst) begin
+            pix_x <= 0;
+            pix_y <= 0;
+        end
+        else begin
+            pix_x = {6'b0,hpos} ;
+            pix_y = {6'b0, ypos} ;
+        end
+    
+    end
     // Address 0 reads the example data register.  
     // Address 4 reads ui_in
     // All other addresses read 0.
-    assign data_out = (address == 6'h0) ? example_data :
-                      (address == 6'h4) ? {24'h0, ui_in} :
+    assign data_out = (address == 6'h0) ? control_data :
+        (address == 6'h4) ? {16'b0, pix_x}:
+        (address == 6'h6) ? {16'h0, pix_y} :
                       32'h0;
+
+    assign uo_out[2] = hsync ;
+    assign uo_out[3] = vsync ;
+    assign uo_out[4] = display_on ;
 
     // All reads complete in 1 clock
     assign data_ready = 1;
